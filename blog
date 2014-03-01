@@ -1,0 +1,107 @@
+#!/usr/bin/env ruby
+
+module Blog
+  module_function
+  def init(args)
+    cmd = args.shift
+    raise 'This directory is not Jekyll dir.' unless jekyll_root?
+    case cmd
+    when 'list'    then list
+    when 'write'   then write args
+    when 'edit'    then edit args
+    when 'start'   then Server.start
+    when 'stop'    then Server.stop
+    when 'restart' then Server.restart
+    when 'view'    then Server.view
+    else puts usage
+    end
+  rescue => e
+    puts e.message
+  end
+
+  def jekyll_root?
+    !!File.exist?('_config.yml')
+  end
+
+  def list
+    puts `ls _posts/`
+  end
+
+  def write(params)
+    raise 'Usage: blog write [title]' if params.empty?
+    date = Time.now.strftime("%Y-%m-%d")
+    file = "_posts/#{date}-#{params[0]}.md"
+    raise file + ' is already exist.' if File.exist?(file)
+    File.open(file, 'w'){|f| f.write template date }
+    vi file
+  end
+
+  def edit(params)
+    raise 'Usage: blog edit [title]' if params.empty?
+    posts = Dir::glob("_posts/*#{params[0]}*.md")
+    raise "post '#{params[0]}' is not found." if posts.empty?
+    if posts.size == 1
+      vi posts[0]
+    else
+      puts posts.join("\n")
+    end
+  end
+
+  def vi(file)
+    `vi #{file} < \`tty\` > \`tty\``
+  end
+
+  module Server
+    module_function
+    def start
+      raise 'Already running.' unless pid.nil?
+      `jekyll serve -w > /dev/null &`
+    end
+
+    def stop
+      `kill #{pid}` unless pid.nil?
+    end
+
+    def restart
+      stop && start
+    end
+
+    def pid
+      pid = `ps x | grep jekyll | grep -v grep | awk '{print $1}'`
+      pid.empty? ? nil : pid
+    end
+
+    def view
+      `open http://0.0.0.0:4000`
+    end
+  end
+
+  def usage
+<<"EOS"
+Usage: blog [subcommand] [options]
+SubCommands:
+  write [title] Create new post.
+  edit [title]  Edit post.
+  list          Show post list.
+  start         Start Jekyll server.
+  stop          Stop Jekyll server.
+  restart       Restart Jekyll server.
+  view          View blog in browser.
+EOS
+  end
+
+  def template(date)
+<<"EOS"
+---
+layout: post
+title: ''
+date: #{date}
+tags: []
+description: ''
+image: ''
+---
+EOS
+  end
+end
+
+Blog.init ARGV

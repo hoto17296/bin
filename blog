@@ -7,12 +7,16 @@ module Blog
     raise 'This directory is not Jekyll dir.' unless jekyll_root?
     case cmd
     when 'list'    then list
-    when 'write'   then write args
+    when 'ls'      then list
+    when 'new'     then write args
+    when 'n'       then write args
     when 'edit'    then edit args
+    when 'e'       then edit args
     when 'start'   then Server.start
     when 'stop'    then Server.stop
     when 'restart' then Server.restart
     when 'view'    then Server.view
+    when 'v'       then Server.view
     else puts usage
     end
   rescue => e
@@ -80,13 +84,13 @@ module Blog
 <<"EOS"
 Usage: blog [subcommand] [options]
 SubCommands:
-  write [title] Create new post.
-  edit [title]  Edit post.
-  list          Show post list.
-  start         Start Jekyll server.
-  stop          Stop Jekyll server.
-  restart       Restart Jekyll server.
-  view          View blog in browser.
+  new [title]  Create new post.
+  edit [title] Edit post.
+  list         Show post list.
+  start        Start Jekyll server.
+  stop         Stop Jekyll server.
+  restart      Restart Jekyll server.
+  view         View blog in browser.
 EOS
   end
 

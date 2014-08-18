@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ $# -ne 1 ]; then
+	echo "Usage:\n  tweet 'hogehoge'" 1>&2
+	exit 1
+fi
+
+ttytter -status="$1"

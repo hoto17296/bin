@@ -1,0 +1,5 @@
+#!/bin/bash -eu
+
+INTERFACE=en0
+
+ifconfig ${INTERFACE} inet | sed -nE 's/.*inet[ \t]*([0-9.]+).*/\1/p'

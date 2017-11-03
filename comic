@@ -1,0 +1,10 @@
+#!/bin/sh
+
+app='/Applications/Quick View.app'
+[ -e "$app" ] || exit 1
+
+file="$(find . | grep -v '/\.' | peco --prompt 'PATH>')"
+echo "$file"
+[ -z "$file" ] && exit
+
+open -a "$app" "$file"

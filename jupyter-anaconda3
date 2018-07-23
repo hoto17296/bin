@@ -1,7 +1,14 @@
 #!/bin/sh
 
+if [ "$HOME" = "$PWD" ]
+then
+  NOTEBOOK_DIR=$HOME/notebooks
+else
+  NOTEBOOK_DIR=$PWD
+fi
+
 docker run --rm -it \
-    -v $(pwd):/notebooks \
+    -v $NOTEBOOK_DIR:/notebooks \
     -p 8888:8888 \
     -h localhost \
     continuumio/anaconda3 \

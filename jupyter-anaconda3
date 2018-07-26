@@ -1,8 +1,8 @@
 #!/bin/sh
 
-if [ "$HOME" = "$PWD" ]
+if [ -d "$PWD/notebooks" ]
 then
-  NOTEBOOK_DIR=$HOME/notebooks
+  NOTEBOOK_DIR=$PWD/notebooks
 else
   NOTEBOOK_DIR=$PWD
 fi

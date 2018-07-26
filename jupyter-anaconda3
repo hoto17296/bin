@@ -19,7 +19,7 @@ docker run --rm $RUN_OPTION \
     -h ${HOST:-localhost} \
     -p ${PORT:-8888}:8888 \
     -v $NOTEBOOK_DIR:/notebooks \
-    continuumio/anaconda3 \
+    hoto17296/anaconda3-ja \
     jupyter notebook \
         --allow-root \
         --ip=0.0.0.0 \

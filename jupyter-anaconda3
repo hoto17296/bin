@@ -1,16 +1,18 @@
 #!/bin/sh
 
-if [ -d "$PWD/notebooks" ]
-then
-  NOTEBOOK_DIR=$PWD/notebooks
-else
-  NOTEBOOK_DIR=$PWD
+if [ -z "$NOTEBOOK_DIR" ]; then
+  if [ -d "$PWD/notebooks" ]; then
+    NOTEBOOK_DIR=$PWD/notebooks
+  else
+    NOTEBOOK_DIR=$PWD
+  fi
 fi
 
 docker run --rm -it \
+    --name ${CONTAINER_NAME:-jupyter-anaconda3} \
+    -h ${HOST:-localhost} \
+    -p ${PORT:-8888}:8888 \
     -v $NOTEBOOK_DIR:/notebooks \
-    -p 8888:8888 \
-    -h localhost \
     continuumio/anaconda3 \
     jupyter notebook \
         --allow-root \

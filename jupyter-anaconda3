@@ -8,7 +8,13 @@ if [ -z "$NOTEBOOK_DIR" ]; then
   fi
 fi
 
-docker run --rm -it \
+if [ "$1" == "-d" ]; then
+  RUN_OPTION="-d"
+else
+  RUN_OPTION="-it"
+fi
+
+docker run --rm $RUN_OPTION \
     --name ${CONTAINER_NAME:-jupyter-anaconda3} \
     -h ${HOST:-localhost} \
     -p ${PORT:-8888}:8888 \

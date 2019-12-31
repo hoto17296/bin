@@ -1,0 +1,5 @@
+#!/bin/bash -eu
+
+BUILTIN_DISPLAY_ID=$(brightness -l 2>/dev/null | grep built-in | sed -E 's/^.*ID (0x.+)$/\1/g')
+
+brightness -d $BUILTIN_DISPLAY_ID $1

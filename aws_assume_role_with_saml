@@ -1,0 +1,26 @@
+#!/bin/bash -eu
+
+# For details, see: https://qiita.com/hoto17296/items/69c832bf7628a6c85cc5
+
+if !(type "aws" > /dev/null 2>&1) || !(type "jq" > /dev/null 2>&1); then
+  echo "This script requires the 'aws' and 'jq' commands." 1>&2
+  echo "Please install them." 1>&2
+  exit 1
+fi
+
+SSO_AUTHENTICATION_URL=$(aws configure get sso_authentication_url || true)
+if [ -n "${SSO_AUTHENTICATION_URL}" ]; then
+  echo -e "Open this URL in your browser to get the SAML Response string.\n${SSO_AUTHENTICATION_URL}\n"
+fi
+
+read -n 8192 -p "SAML Response: " SAML_RESPONSE
+
+CONFIG_PATH="${HOME}/.aws/assume-role-with-saml-config/${AWS_PROFILE:-default}.yml"
+CREDENTIALS=$(aws sts assume-role-with-saml --cli-input-yaml "$(cat ${CONFIG_PATH})" --saml-assertion ${SAML_RESPONSE})
+
+echo -e "\nSucceeded!\nAdd the below to '~/.aws/credentials'.\n"
+
+echo "[${AWS_PROFILE:-default}]"
+echo "aws_access_key_id = $(echo ${CREDENTIALS} | jq -r .Credentials.AccessKeyId)"
+echo "aws_secret_access_key = $(echo ${CREDENTIALS} | jq -r .Credentials.SecretAccessKey)"
+echo "aws_session_token = $(echo ${CREDENTIALS} | jq -r .Credentials.SessionToken)"

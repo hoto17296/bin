@@ -1,0 +1,36 @@
+#!/bin/bash -eu
+
+usage() {
+  echo "Usage: "
+  echo "  [AWS_PROFILE=...] $(basename $0) (list|start|stop)"
+}
+
+aws-ec2-instances() {
+  aws ec2 describe-instances --query "Reservations[].Instances[].[InstanceId, Tags[?Key == 'Name'].Value | [0], State.Name, PublicIpAddress || '-']" --output=text
+}
+
+[ $# -ne 1 ] && usage && exit 1
+
+case "$1" in
+  list)
+    aws-ec2-instances
+    ;;
+  start)
+    INSTANCE_ID=$(aws-ec2-instances | peco | awk '{print $1}')
+    [ -z "${INSTANCE_ID}" ] && exit
+    aws ec2 start-instances --instance-ids ${INSTANCE_ID} > /dev/null
+    echo Starting ${INSTANCE_ID} ...
+    aws ec2 wait instance-running --instance-ids ${INSTANCE_ID}
+    aws-ec2-instances | grep ${INSTANCE_ID}
+    ;;
+  stop)
+    INSTANCE_ID=$(aws-ec2-instances | peco | awk '{print $1}')
+    [ -z "${INSTANCE_ID}" ] && exit
+    aws ec2 stop-instances --instance-ids ${INSTANCE_ID} > /dev/null
+    echo Stopping ${INSTANCE_ID} ...
+    aws ec2 wait instance-stopped --instance-ids ${INSTANCE_ID}
+    aws-ec2-instances | grep ${INSTANCE_ID}
+    ;;
+  *)
+    usage && exit 1
+esac
